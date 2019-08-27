@@ -1,20 +1,38 @@
 <html>
 	<head>
+		<meta charset="utf-8" />
 		<title>Shopping List</title>
-		<link href="style.css" rel="stylesheet" type="text/css">
-		<script type"text/javascript" src="functions.js>
-	</head>
-	<body>
-		<div class="header" id="myFuckingDiv">
-			<h2>Shopping List</h2>
-			<input type="text" id="inputElement" placeholder="Add something here">
-			<span onclick="addNewElement()" class="addBtn">Add</span>
-		</div>
+		
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 
-		<ul id="myList">
-			<li>Something</li>
-			<li class="checked"></li>
-		</ul>
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> 
+
+		<link href="style.css" rel="stylesheet" type="text/css">
+
+		<script type="text/javascript" src="functions.js"></script>
+	</head>
+
+	<body>
+		<div class="header" id="myDiv">
+			<h2>Shopping List</h2>
+			<input type="text" id="inputElement" placeholder="Add new element here"/>
+			<span>
+				<button class="addBtn" onclick="addNewElement()">Add</button>
+			</span>
+		</div>
+		<div>
+			<ul id="myList">
+				<li>Guanciale</li>
+				<li>Acqua</li>
+				<li>Pecorino</li>
+				<li class="checked">Uova</li>
+			</ul>
+		</div>
 	</body>
 </html>
 
