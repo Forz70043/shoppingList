@@ -1,18 +1,27 @@
 
-var nodelist = document.getElementsByTagName("li");
+document.addEventListener("DOMContentLoaded", function(e) {
+  var myList=document.getElementsByTagName("li");
+  console.log(myList);
+  var i;
+  countList=count("li");
+  console.log(countList);
+  if(myList.length!=0){
+    for(i=0;i<myList.length;i++)
+    {
+      var span=document.createElement("SPAN");
+      console.log("span");
+      console.log(span);
+      var txt=document.createTextNode("\u00D7");
+      console.log("txt");
+      console.log(txt);
+      span.className="close";
+      span.appendChild(txt);
+      myList[i].appendChild(span);
+    }
+  }
 
-for(var i=0; i<nodelist.length; i++)
-{
-	var span = document.createElement("span");
-	console.log("span");
-  console.log(span);
-  var txt = document.createTextNode("\u00D7");
-  console.log("txt");
-  console.log(txt);
-  span.className="close";
-	span.appendChild(txt);
-	nodelist[i].appendChild(span);
-}
+
+});
 
 var close = document.getElementsByClassName("close");
 console.log("close");
@@ -28,12 +37,17 @@ for(var x=0;x<close.length;x++)
 
 // Add a "checked" symbol when clicking on a list item
 var list = document.getElementById("myList");
+var list = document.querySelector('ul');
 console.log("list ul>li");
 console.log(list);
 
 if(list!=null){
+  console.log("list div null");
   list.addEventListener('click',function(ev){
-    if(ev.target.tagName === "li") { ev.target.classList.toggle("checked"); }
+    console.log(ev);
+    if(ev.target.tagName==="li"){ 
+      ev.target.classList.toggle("checked"); 
+    }
   }, false);
 }
  
@@ -68,3 +82,7 @@ function addNewElement()
   }
 
 } 
+
+function count(selector){
+  return document.querySelectorAll(selector).length;
+}
