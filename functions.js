@@ -1,5 +1,6 @@
 
-document.addEventListener("DOMContentLoaded", function(e) {
+document.addEventListener("DOMContentLoaded", function(e) 
+{
   var myList=document.getElementsByTagName("li");
   console.log(myList);
   var i;
@@ -20,14 +21,9 @@ document.addEventListener("DOMContentLoaded", function(e) {
     }
   }
 
+  var close = document.getElementsByClassName("close");
 
-});
-
-var close = document.getElementsByClassName("close");
-console.log("close");
-console.log(close);
-
-for(var x=0;x<close.length;x++)
+  for(var x=0;x<close.length;x++)
 {
 	close[x].onclick = function() {
 		var div = this.parentElement;
@@ -51,38 +47,36 @@ if(list!=null){
   }, false);
 }
  
-// Create a new list item when clicking on the "Add" button
-function addNewElement() 
-{
-  console.log("AddNewValue");
-  var li = document.createElement("li");
-  var inputValue = document.getElementById("inputElement").value;
-  console.log("inputValue");
-  console.log(inputValue);
+  // Create a new list item when clicking on the "Add" button
+  function addNewElement() 
+  {
+    console.log("AddNewValue");
+    var li = document.createElement("li");
+    var inputValue = document.getElementById("inputElement").value;
+    console.log("inputValue");
+    console.log(inputValue);
 
-  var t = document.createTextNode(inputValue);
-  li.appendChild(t);
+    var t = document.createTextNode(inputValue);
+    li.appendChild(t);
 
-  if(inputValue===''){ alert("You must write something!"); }
-  else{ document.getElementById("myList").appendChild(li); }
-  
-  document.getElementById("inputElement").value = "";
+    if(inputValue===''){ alert("You must write something!"); }
+    else{ document.getElementById("myList").appendChild(li); }
+    
+    document.getElementById("inputElement").value = "";
 
-  var span = document.createElement("span");
-  var txt = document.createTextNode("\u00D7");
-  span.className = "close";
-  span.appendChild(txt);
-  li.appendChild(span);
+    var span = document.createElement("span");
+    var txt = document.createTextNode("\u00D7");
+    span.className = "close";
+    span.appendChild(txt);
+    li.appendChild(span);
 
-  for(i=0; i<close.length; i++){
-    close[i].onclick = function(){
-      var div = this.parentElement;
-      div.style.display = "none";
+    for(i=0; i<close.length; i++){
+      close[i].onclick = function(){
+        var div = this.parentElement;
+        div.style.display = "none";
+      }
     }
+
   }
 
-} 
-
-function count(selector){
-  return document.querySelectorAll(selector).length;
-}
+});
