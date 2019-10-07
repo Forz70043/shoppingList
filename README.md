@@ -1,5 +1,5 @@
 # shoppingList
 just a simple list 
-Operation: add element - remove element - check element
+Operation: add element - remove element - check element (all client side)
 
 
