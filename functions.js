@@ -54,7 +54,7 @@ function addNewElement()
 
   if(inputValue==='') alert("You must write something!");
   else document.getElementById("myList").appendChild(li);
-  
+
   document.getElementById("inputElement").value = "";
 
   var span = document.createElement("span");
@@ -71,3 +71,24 @@ function addNewElement()
   }
 
 }
+
+function doAuth(form)
+{
+  console.log("auth");
+  console.log(form);
+  email= document.getElementById('email');
+  pswd= document.getElementById('password');
+  
+  console.log(email);
+  console.log(pswd);
+
+  //mongodb = require('mongodb'); 
+
+
+}
+
+
+
+
+
+

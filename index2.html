@@ -1,16 +1,10 @@
-<!doctype html>
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>Shopping List</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- Latest compiled and minified CSS -->
-		<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">-->
-		
 		<!-- jQuery library -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-		<!-- Latest compiled JavaScript -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> 
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+		<link href="style.css" rel="stylesheet" type="text/css">
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
@@ -19,27 +13,20 @@
 
 		<!-- Latest compiled and minified JavaScript -->
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-
-		<link href="style.css" rel="stylesheet" type="text/css">
 		<script type="text/javascript" src="functions.js"></script>
+		<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous">
+		</script>
 	</head>
 	<body>
-		<div class="header" id="myDiv">
-			<h2>Shopping List</h2>
-			<input type="text" id="inputElement" placeholder="Add new element here"/>
-			<span>
-				<button class="addBtn" onclick="addNewElement()">Add</button>
-			</span>
+		<div class="container">
+			<div class="login-form">
+				<h1>Login Form</h1>
+				<form action="auth" method="POST">
+					<input type="text" name="username" placeholder="Username" required>
+					<input type="password" name="password" placeholder="Password" required>
+					<input type="submit">
+				</form>
+			</div>
 		</div>
-		
-		<ul id="myList">
-			<li>Guanciale</li>
-			<li>Buy eggs</li>
-			<li>Read a book</li>
-			<li>Organize office</li>
-			<li class="checked">Uova</li>
-		</ul>
-
 	</body>
 </html>
-
