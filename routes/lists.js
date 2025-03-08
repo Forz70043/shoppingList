@@ -2,7 +2,10 @@ const express = require('express');
 const List = require('../models/List');
 const router = express.Router();
 
-// Crea una nuova lista
+/**
+ * Creation of new list
+ * POST /api/lists
+ */
 router.post('/', async (req, res) => {
     try {
         const { name, userId } = req.body;
@@ -14,7 +17,10 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Ottieni tutte le liste dell'utente
+/**
+ * Get all lists
+ * GET /api/lists
+ */
 router.get('/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
@@ -26,7 +32,10 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
-// Ottieni una lista per ID
+/**
+ * Get list by id
+ * GET /api/lists/:userId/:id
+ */
 router.get('/:userId/:id', async (req, res) => {
     try {
         const { userId, id } = req.params;
@@ -41,7 +50,10 @@ router.get('/:userId/:id', async (req, res) => {
     }
 });
 
-// Modifica una lista
+/**
+ * Update list
+ * PUT /api/lists/:userId/:id
+ */
 router.put('/:userId/:id', async (req, res) => {
     try {
         const { userId, id } = req.params;
@@ -59,7 +71,10 @@ router.put('/:userId/:id', async (req, res) => {
     }
 });
 
-// Elimina una lista
+/**
+ * Delete list
+ * DELETE /api/lists/:userId/:id
+ */
 router.delete('/:userId/:id', async (req, res) => {
     try {
         const { userId, id } = req.params;
