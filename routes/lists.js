@@ -1,14 +1,16 @@
 const express = require('express');
 const List = require('../models/List');
 const router = express.Router();
+const verifyToken = require('../middleware/auth');
 
 /**
  * Creation of new list
  * POST /api/lists
  */
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
     try {
-        const { name, userId } = req.body;
+        const { name } = req.body;
+        const userId = req.user.id;
         const lista = await List.create({ name, userId });
         res.status(201).json(lista);
     } catch (error) {
@@ -21,9 +23,12 @@ router.post('/', async (req, res) => {
  * Get all lists
  * GET /api/lists
  */
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', verifyToken, async (req, res) => {
     try {
         const { userId } = req.params;
+        if (parseInt(userId) !== req.user.id) {
+            return res.status(403).json({ message: 'Accesso non autorizzato' });
+        }
         const lists = await List.findAll({ where: { userId } });
         res.status(200).json(lists);
     } catch (error) {
