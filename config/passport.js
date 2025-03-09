@@ -21,9 +21,10 @@ passport.use(new GoogleStrategy({
             } 
             else {
                 user = await User.create({
+                    name: profile.displayName,
                     username: profile.displayName,
                     email: profile.emails[0].value,
-                    password: null,
+                    password: '',
                     provider: 'google',
                     providerId: profile.id,
                 });
