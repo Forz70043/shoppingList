@@ -25,16 +25,18 @@ const User = sequelize.define('User', {
     password: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+    provider: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    providerId: {
+        type: DataTypes.STRING,
+        allowNull: true,
     }
 }, {
-  tableName: 'users',
-  timestamps: true,
-});
-
-// Hash della password prima di salvare
-User.beforeCreate(async (user) => {
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
+    tableName: 'users',
+    timestamps: true,
 });
 
 module.exports = User;
