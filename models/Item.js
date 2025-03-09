@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
-const List = sequelize.define('List', {
+const Item = sequelize.define('Item', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -11,22 +11,28 @@ const List = sequelize.define('List', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    userId: {
+    listId: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    quantity: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+    },
+    purchased: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
 }, {
-    tableName: 'lists',
+    tableName: 'items',
     timestamps: true,
 });
 
-List.associate = (models) => {
-    List.hasMany(models.Item, {
+Item.associate = (models) => {
+    Item.belongsTo(models.List, {
         foreignKey: 'listId',
-        as: 'items',
+        as: 'list',
     });
-
-    List.belongsTo(models.User, { foreignKey: 'userId' });
 }
 
-module.exports = List;
+module.exports = Item;
