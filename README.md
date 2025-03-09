@@ -85,7 +85,9 @@ Kill the existing process using the port with
 
 or using a tool like Activity Monitor on macOS or Task Manager on Windows.
     
-Restart the server using npm run dev.
+Restart the server using 
+    
+    npm run dev
 
 ## License
 
