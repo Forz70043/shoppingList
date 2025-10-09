@@ -1,13 +1,20 @@
 const express = require('express');
+const RateLimit = require('express-rate-limit');
 const { Item, List } = require('../models');
 const router = express.Router();
 const verifyToken = require('../middleware/auth');
+
+// Rate limiter: max 100 requests per 15 minutes per IP
+const limiter = RateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+});
 
 /**
  * Creation of new list
  * POST /api/lists
  */
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyToken, limiter, async (req, res) => {
     try {
         const { name } = req.body;
         const userId = req.user.id;
@@ -23,7 +30,7 @@ router.post('/', verifyToken, async (req, res) => {
  * Get all lists
  * GET /api/lists
  */
-router.get('/:userId', verifyToken, async (req, res) => {
+router.get('/:userId', verifyToken, limiter, async (req, res) => {
     try {
         const { userId } = req.params;
         if (parseInt(userId) !== req.user.id) {
@@ -41,7 +48,7 @@ router.get('/:userId', verifyToken, async (req, res) => {
  * Get list by id
  * GET /api/lists/:userId/:id
  */
-router.get('/:userId/:id', verifyToken, async (req, res) => {
+router.get('/:userId/:id', verifyToken, limiter, async (req, res) => {
     try {
         const { userId, id } = req.params;
         if (parseInt(userId) !== req.user.id) {
@@ -62,7 +69,7 @@ router.get('/:userId/:id', verifyToken, async (req, res) => {
  * Update list
  * PUT /api/lists/:userId/:id
  */
-router.put('/:userId/:id', verifyToken, async (req, res) => {
+router.put('/:userId/:id', verifyToken, limiter, async (req, res) => {
     try {
         const { userId, id } = req.params;
         if (parseInt(userId) !== req.user.id) {
