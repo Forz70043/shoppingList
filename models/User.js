@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const bcrypt = require('bcryptjs');
+const UserRole = require('./UserRole');
 
 const User = sequelize.define('User', {
     id: {
@@ -15,12 +16,10 @@ const User = sequelize.define('User', {
     username: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
     },
     password: {
         type: DataTypes.STRING,
@@ -37,6 +36,21 @@ const User = sequelize.define('User', {
 }, {
     tableName: 'users',
     timestamps: true,
+    indexes: [
+        {
+            unique: true,
+            fields: ['username']
+        },
+        {
+            unique: true,
+            fields: ['email']
+        }
+    ]
 });
+
+// Relations (requires Role without creating circularity)
+const Role = require('./Role');
+User.belongsToMany(Role, { through: UserRole, foreignKey: 'userId', otherKey: 'roleId' });
+Role.belongsToMany(User, { through: UserRole, foreignKey: 'roleId', otherKey: 'userId' });
 
 module.exports = User;
