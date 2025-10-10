@@ -1,6 +1,4 @@
 const request = require('supertest');
-const express = require('express');
-const cors = require('cors');
 
 // Import server instance
 const app = require('../server');

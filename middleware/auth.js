@@ -11,6 +11,7 @@ const verifyToken = (req, res, next) => {
         req.user = payload; // Add user to request
         next();
     } catch (error) {
+        console.log(error);
         res.status(401).json({ message: 'Token not valid' });
     }
 };
