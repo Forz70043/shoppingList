@@ -139,7 +139,7 @@ router.post('/:userId/:listId/items', verifyToken, async (req, res) => {
         res.status(201).json(newItem);
     } 
     catch (error) {
-        //console.error("Error adding item:", error);
+        console.error("Error adding item:", error);
         res.status(500).json({ error: 'Error adding item' });
     }
 });
@@ -167,7 +167,7 @@ router.get('/:userId/:listId/items', verifyToken, async (req, res) => {
         res.status(200).json(items);
     } 
     catch (error) {
-        //console.error("Error fetching items:", error);
+        console.error("Error fetching items:", error);
         res.status(500).json({ error: 'Error fetching items' });
     }
 });
