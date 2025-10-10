@@ -25,4 +25,17 @@ sequelize.sync({ force: false, alter: true })
   .catch(err => console.error('Error on sync:', err));
 
 
-app.listen(PORT, () => console.log(`Server start on http://localhost:${PORT}`));
+// Avvia il server solo se non stai eseguendo test
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 5000;
+  sequelize
+    .sync({ force: false, alter: true })
+    .then(() => console.log('Database sync'))
+    .catch((err) => console.error('Error on sync:', err));
+  app.listen(PORT, () =>
+    console.log(`Server start on http://localhost:${PORT}`)
+  );
+}
+
+// Esporta app per i test
+module.exports = app;
