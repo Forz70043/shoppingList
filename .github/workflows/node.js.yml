@@ -65,3 +65,13 @@ jobs:
       run: npm run lint
     - name: Run tests
       run: npm test
+      env:
+        NODE_ENV: test
+        DB_NAME: testdb
+        DB_USER: root
+        DB_PASS: password
+        DB_HOST: 127.0.0.1
+        DB_DIALECT: mysql
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
