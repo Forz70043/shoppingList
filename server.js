@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const sequelize = require('./config/db');
+const sequelize  = require('./config/db');
 const authRoutes = require('./routes/auth');
 const listRoutes = require('./routes/lists');
 
@@ -18,21 +18,19 @@ app.get('/', (req, res) => {
   res.send('API Grocery List');
 });
 
-sequelize.sync({ force: false, alter: true })
-  .then(() => console.log('Database sync'))
-  .catch(err => console.error('Error on sync:', err));
-
-
-// Avvia il server solo se non stai eseguendo test
+// Start the server only if not running tests
 if (process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 5000;
-  sequelize
-    .sync({ force: false, alter: true })
-    .then(() => console.log('Database sync'))
-    .catch((err) => console.error('Error on sync:', err));
-  app.listen(PORT, () =>
-    console.log(`Server start on http://localhost:${PORT}`)
-  );
+  sequelize.authenticate()
+    .then(() => {
+      console.log('Database connected.');
+      return sequelize.sync({ alter: true });
+    })
+    .then(() => {
+      console.log('Database synchronized.');
+      app.listen(PORT, () => console.log(`Server start on http://localhost:${PORT}`));
+    })
+    .catch((err) => console.error('Error on DB:', err));
 }
 
 // Esporta app per i test
