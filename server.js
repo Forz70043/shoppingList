@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const sequelize  = require('./config/db');
+const sequelize = require('./config/db');
 const authRoutes = require('./routes/auth');
 const listRoutes = require('./routes/lists');
 
@@ -33,5 +33,5 @@ if (process.env.NODE_ENV !== 'test') {
     .catch((err) => console.error('Error on DB:', err));
 }
 
-// Esporta app per i test
+// Export app for tests
 module.exports = app;
