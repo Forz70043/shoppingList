@@ -37,6 +37,5 @@ if (process.env.NODE_ENV !== 'test') {
     })
     .catch((err) => console.error('Error on DB:', err));
 }
-console.log('ENV:', process.env.NODE_ENV);
 // Export app for tests
 module.exports = app;
