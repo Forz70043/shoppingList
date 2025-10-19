@@ -97,7 +97,7 @@ router.put('/:id', verifyToken, limiter, async (req, res) => {
  * Delete list
  * DELETE /api/lists/:id
  */
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyToken, limiter, async (req, res) => {
     try {
         const { id } = req.params;
         if (!req.user || !req.user.id) {
@@ -120,7 +120,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
  * Get all items from list
  * POST /api/lists/:listId/items
  */
-router.post('/:listId/items', verifyToken, async (req, res) => {
+router.post('/:listId/items', verifyToken, limiter, async (req, res) => {
     try {
         const listId = req.params;
         if (!req.user || !req.user.id) {
