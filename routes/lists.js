@@ -122,7 +122,7 @@ router.delete('/:id', verifyToken, limiter, async (req, res) => {
  */
 router.post('/:listId/items', verifyToken, limiter, async (req, res) => {
     try {
-        const listId = req.params;
+        const listId = req.params.listId;
         if (!req.user || !req.user.id) {
             return res.status(401).json({ message: 'Access denied: no user info' });
         }

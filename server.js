@@ -13,6 +13,8 @@ app.use(cookieParser());
 app.use(cors({
   credentials: true,
   origin: process.env.CORS_ORIGIN || process.env.FE_URL,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(express.json());
 
