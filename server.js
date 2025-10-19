@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const dotenv = require('dotenv');
 const sequelize = require('./config/db');
 const authRoutes = require('./routes/auth');
@@ -8,7 +9,11 @@ const listRoutes = require('./routes/lists');
 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+  credentials: true,
+  origin: process.env.CORS_ORIGIN || process.env.FE_URL,
+}));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
@@ -32,6 +37,6 @@ if (process.env.NODE_ENV !== 'test') {
     })
     .catch((err) => console.error('Error on DB:', err));
 }
-
+console.log('ENV:', process.env.NODE_ENV);
 // Export app for tests
 module.exports = app;

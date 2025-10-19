@@ -18,7 +18,20 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback',
     passport.authenticate('google', { session: false }),
     (req, res) => {
-        res.json({ token: req.user.token, user: req.user.user });
+        const token = jwt.sign(
+            { id: req.user.id, email: req.user.email, roles: req.user.roles },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development",
+            sameSite: "Strict",
+            maxAge: 60 * 60 * 1000,
+        });
+        res.redirect(process.env.FE_URL);
+        //res.json({ token: req.user.token, user: req.user.user });
     }
 );
 
@@ -101,8 +114,16 @@ router.post('/signin', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
+
+        // Send cookie in secure HTTP-only
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development",
+            sameSite: "Strict",
+            maxAge: 60 * 60 * 1000, // 1h
+        });
         
-        res.status(200).json({ token });
+        res.status(200).json({ user, token });
     } 
     catch (error) {
         res.status(500).json({ message: 'Error on server', error });

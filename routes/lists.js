@@ -30,12 +30,13 @@ router.post('/', verifyToken, limiter, async (req, res) => {
  * Get all lists
  * GET /api/lists
  */
-router.get('/:userId', verifyToken, limiter, async (req, res) => {
+router.get('/', verifyToken, limiter, async (req, res) => {
     try {
-        const { userId } = req.params;
-        if (parseInt(userId) !== req.user.id) {
-            return res.status(403).json({ message: 'Access denied' });
+        console.log('Request', { user: req.user, body: req.body, params: req.params });
+        if(!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Access denied: no user info' });
         }
+        const userId = req.user.id;
         const lists = await List.findAll({ where: { userId } });
         res.status(200).json(lists);
     } catch (error) {
@@ -46,15 +47,15 @@ router.get('/:userId', verifyToken, limiter, async (req, res) => {
 
 /**
  * Get list by id
- * GET /api/lists/:userId/:id
+ * GET /api/lists/:id
  */
-router.get('/:userId/:id', verifyToken, limiter, async (req, res) => {
+router.get('/:id', verifyToken, limiter, async (req, res) => {
     try {
-        const { userId, id } = req.params;
-        if (parseInt(userId) !== req.user.id) {
-            return res.status(403).json({ message: 'Access denied' });
+        if(!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Access denied: no user info' });
         }
-        const list = await List.findOne({ where: { id, userId } });
+        const { id } = req.params;
+        const list = await List.findOne({ where: { id, userId: req.user.id } });
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
         }
@@ -67,16 +68,16 @@ router.get('/:userId/:id', verifyToken, limiter, async (req, res) => {
 
 /**
  * Update list
- * PUT /api/lists/:userId/:id
+ * PUT /api/lists/:id
  */
-router.put('/:userId/:id', verifyToken, limiter, async (req, res) => {
+router.put('/:id', verifyToken, limiter, async (req, res) => {
     try {
-        const { userId, id } = req.params;
-        if (parseInt(userId) !== req.user.id) {
-            return res.status(403).json({ message: 'Access denied' });
+        const { id } = req.params;
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Access denied: no user info' });
         }
         const { name } = req.body;
-        const list = await List.findOne({ where: { id, userId } });
+        const list = await List.findOne({ where: { id, userId: req.user.id } });
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
         }
@@ -91,17 +92,18 @@ router.put('/:userId/:id', verifyToken, limiter, async (req, res) => {
 
 /**
  * Delete list
- * DELETE /api/lists/:userId/:id
+ * DELETE /api/lists/:id
  */
-router.delete('/:userId/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     try {
-        const { userId, id } = req.params;
-        if (parseInt(userId) !== req.user.id) {
-            return res.status(403).json({ message: 'Access denied' });
+        const { id } = req.params;
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Access denied: no user info' });
         }
+        const userId = req.user.id;
         const list = await List.findOne({ where: { id, userId } });
         if (!list) {
-            return res.status(404).json({ message: 'Lis not found' });
+            return res.status(404).json({ message: 'List not found' });
         }
         await list.destroy();
         res.status(200).json({ message: 'List deleted' });
@@ -113,13 +115,13 @@ router.delete('/:userId/:id', verifyToken, async (req, res) => {
 
 /**
  * Get all items from list
- * POST /api/lists/:userId/:listId/items
+ * POST /api/lists/:listId/items
  */
-router.post('/:userId/:listId/items', verifyToken, async (req, res) => {
+router.post('/:listId/items', verifyToken, async (req, res) => {
     try {
-        const { userId, listId } = req.params;
-        if (parseInt(userId) !== req.user.id) {
-            return res.status(403).json({ message: 'Access denied' });
+        const listId = req.params;
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Access denied: no user info' });
         }
         const { name, quantity } = req.body;
     
@@ -148,11 +150,11 @@ router.post('/:userId/:listId/items', verifyToken, async (req, res) => {
  * Get all items from list
  * GET /api/lists/:listId/items
  */
-router.get('/:userId/:listId/items', verifyToken, async (req, res) => {
+router.get('/:listId/items', verifyToken, async (req, res) => {
     try {
-        const { userId, listId } = req.params;
-        if (parseInt(userId) !== req.user.id) {
-            return res.status(403).json({ message: 'Access denied' });
+        const { listId } = req.params;
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Access denied: no user info' });
         }
         // Check if list exists
         const list = await List.findOne({ where: { id: listId, userId: req.user.id } });
