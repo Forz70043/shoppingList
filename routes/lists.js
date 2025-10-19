@@ -72,7 +72,10 @@ router.get('/:id', verifyToken, limiter, async (req, res) => {
  */
 router.put('/:id', verifyToken, limiter, async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
+        if (!id) {
+            return res.status(400).json({ message: 'List ID is required' });
+        }
         if (!req.user || !req.user.id) {
             return res.status(401).json({ message: 'Access denied: no user info' });
         }
