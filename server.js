@@ -20,7 +20,29 @@ app.use(cors({
 app.use(express.json());
 
 // CSRF protection
-app.use(lusca.csrf());
+app.use(
+  lusca({
+    // Block XSS and clickjacking
+    xframe: 'SAMEORIGIN',
+    xssProtection: true,
+    // Protect against Content-Type sniffing
+    nosniff: true,
+    // Set CSP (Content Security Policy)
+    csp: {
+      policy: {
+        'default-src': "'self'",
+        'script-src': ["'self'", "'unsafe-inline'", 'https://apis.google.com'],
+        'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        'font-src': ["'self'", 'https://fonts.gstatic.com'],
+        'img-src': ["'self'", 'data:'],
+      },
+    },
+    // Add HSTS only if you are on HTTPS
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    // Block referrer leakage
+    referrerPolicy: 'same-origin',
+  })
+);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/lists', listRoutes);
