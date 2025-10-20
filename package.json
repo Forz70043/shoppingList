@@ -24,7 +24,8 @@
     "nodemon": "^3.1.10",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "lusca": "^1.7.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
