@@ -3,6 +3,7 @@ const express = require('express');
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const dotenv = require('dotenv');
+const lusca = require('lusca');
 const sequelize = require('./config/db');
 const authRoutes = require('./routes/auth');
 const listRoutes = require('./routes/lists');
@@ -17,6 +18,9 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(express.json());
+
+// CSRF protection
+app.use(lusca.csrf());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/lists', listRoutes);
