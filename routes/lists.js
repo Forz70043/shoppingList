@@ -153,7 +153,7 @@ router.post('/:listId/items', verifyToken, limiter, async (req, res) => {
  * Get all items from list
  * GET /api/lists/:listId/items
  */
-router.get('/:listId/items', verifyToken, async (req, res) => {
+router.get('/:listId/items', verifyToken, limiter, async (req, res) => {
     try {
         const { listId } = req.params;
         if (!req.user || !req.user.id) {
