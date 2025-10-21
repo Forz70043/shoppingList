@@ -1,15 +1,48 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const dotenv = require('dotenv');
+const lusca = require('lusca');
 const sequelize = require('./config/db');
 const authRoutes = require('./routes/auth');
 const listRoutes = require('./routes/lists');
 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+  credentials: true,
+  origin: process.env.CORS_ORIGIN || process.env.FE_URL,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.use(express.json());
+
+// CSRF protection
+app.use(
+  lusca({
+    // Block XSS and clickjacking
+    xframe: 'SAMEORIGIN',
+    xssProtection: true,
+    // Protect against Content-Type sniffing
+    nosniff: true,
+    // Set CSP (Content Security Policy)
+    csp: {
+      policy: {
+        'default-src': "'self'",
+        'script-src': ["'self'", "'unsafe-inline'", 'https://apis.google.com'],
+        'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        'font-src': ["'self'", 'https://fonts.gstatic.com'],
+        'img-src': ["'self'", 'data:'],
+      },
+    },
+    // Add HSTS only if you are on HTTPS
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    // Block referrer leakage
+    referrerPolicy: 'same-origin',
+  })
+);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/lists', listRoutes);
@@ -32,6 +65,5 @@ if (process.env.NODE_ENV !== 'test') {
     })
     .catch((err) => console.error('Error on DB:', err));
 }
-
 // Export app for tests
 module.exports = app;
