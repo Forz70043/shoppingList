@@ -20,13 +20,4 @@ const List = sequelize.define('List', {
     timestamps: true,
 });
 
-List.associate = (models) => {
-    List.hasMany(models.Item, {
-        foreignKey: 'listId',
-        as: 'items',
-    });
-
-    List.belongsTo(models.User, { foreignKey: 'userId' });
-}
-
 module.exports = List;

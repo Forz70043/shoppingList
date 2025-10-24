@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const UserRole = require('./UserRole');
 
 const User = sequelize.define('User', {
     id: {
@@ -46,10 +45,5 @@ const User = sequelize.define('User', {
         }
     ]
 });
-
-// Relations (requires Role without creating circularity)
-const Role = require('./Role');
-User.belongsToMany(Role, { through: UserRole, foreignKey: 'userId', otherKey: 'roleId' });
-Role.belongsToMany(User, { through: UserRole, foreignKey: 'roleId', otherKey: 'userId' });
 
 module.exports = User;
