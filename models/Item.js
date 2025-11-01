@@ -28,11 +28,4 @@ const Item = sequelize.define('Item', {
     timestamps: true,
 });
 
-Item.associate = (models) => {
-    Item.belongsTo(models.List, {
-        foreignKey: 'listId',
-        as: 'list',
-    });
-}
-
 module.exports = Item;

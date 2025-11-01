@@ -7,6 +7,7 @@ const lusca = require('lusca');
 const sequelize = require('./config/db');
 const authRoutes = require('./routes/auth');
 const listRoutes = require('./routes/lists');
+const itemRoutes = require('./routes/items');
 
 dotenv.config();
 const app = express();
@@ -46,6 +47,7 @@ app.use(
 
 app.use('/api/auth', authRoutes);
 app.use('/api/lists', listRoutes);
+app.use('/api/items', itemRoutes);
 
 app.get('/', (req, res) => {
   res.send('API Grocery List');

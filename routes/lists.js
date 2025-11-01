@@ -32,7 +32,6 @@ router.post('/', verifyToken, limiter, async (req, res) => {
  */
 router.get('/', verifyToken, limiter, async (req, res) => {
     try {
-        console.log('Request', { user: req.user, body: req.body, params: req.params });
         if(!req.user || !req.user.id) {
             return res.status(401).json({ message: 'Access denied: no user info' });
         }
@@ -55,7 +54,10 @@ router.get('/:id', verifyToken, limiter, async (req, res) => {
             return res.status(401).json({ message: 'Access denied: no user info' });
         }
         const { id } = req.params;
-        const list = await List.findOne({ where: { id, userId: req.user.id } });
+        const list = await List.findOne({ 
+            where: { id, userId: req.user.id },
+            include: [{ model: Item, as: 'items' }],
+        });
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
         }
