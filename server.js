@@ -52,7 +52,7 @@ app.use('/api/items', itemRoutes);
 app.get('/', (req, res) => {
   res.send('API Grocery List');
 });
-
+const ENV = process.env.NODE_ENV || 'development';
 // Start the server only if not running tests
 if (process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 5000;
@@ -63,7 +63,13 @@ if (process.env.NODE_ENV !== 'test') {
     })
     .then(() => {
       console.log('Database synchronized.');
-      app.listen(PORT, () => console.log(`Server start on http://localhost:${PORT}`));
+      app.listen(PORT, () => {
+        if (ENV === 'production') {
+          console.log(`✅ Server running in production mode on port ${PORT}`);
+        } else {
+          console.log(`🚀 Server running locally at: http://localhost:${PORT}`);
+        }
+      });
     })
     .catch((err) => console.error('Error on DB:', err));
 }
