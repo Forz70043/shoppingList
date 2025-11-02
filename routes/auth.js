@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 const passport = require('../config/passport');
+const verifyToken = require('../middleware/auth');
 
 /**
  * Google authentication
@@ -16,7 +17,10 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
  * GET /api/auth/google/callback
  */
 router.get('/google/callback',
-    passport.authenticate('google', { session: false }),
+    passport.authenticate('google', { 
+        failureRedirect: `${process.env.FE_URL}/login`,
+        session: false 
+    }),
     (req, res) => {
         const token = jwt.sign(
             { id: req.user.id, email: req.user.email, roles: req.user.roles },
@@ -26,8 +30,8 @@ router.get('/google/callback',
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development",
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             maxAge: 60 * 60 * 1000,
         });
         res.redirect(process.env.FE_URL);
@@ -83,7 +87,6 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-
 /**
  * User login
  * POST /api/auth/signin
@@ -118,8 +121,8 @@ router.post('/signin', async (req, res) => {
         // Send cookie in secure HTTP-only
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development",
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             maxAge: 60 * 60 * 1000, // 1h
         });
         
@@ -129,5 +132,26 @@ router.post('/signin', async (req, res) => {
         res.status(500).json({ message: 'Error on server', error });
     }
 });
-  
+
+/**
+ * Get current user
+ * GET /api/auth/me
+ */
+router.get("/me", verifyToken, (req, res) => {
+    res.json({ id: req.user.id, email: req.user.email, roles: req.user.roles });
+});
+
+/**
+ * User logout
+ * POST /api/auth/logout
+ */
+router.post("/logout", (req, res) => {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+    res.status(200).json({ message: "Logged out successfully" });
+});
+
 module.exports = router;
