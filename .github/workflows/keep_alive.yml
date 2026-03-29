@@ -8,6 +8,8 @@ on:
 
 jobs:
   ping:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Ping my services
