@@ -14,7 +14,7 @@ const limiter = RateLimit({
  * Delete item
  * DELETE /api/items/:id
  */
-router.delete('/:id', verifyToken, limiter, async (req, res) => {
+router.delete('/:id', verifyToken, limiter, async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!req.user || !req.user.id) {
@@ -42,8 +42,7 @@ router.delete('/:id', verifyToken, limiter, async (req, res) => {
         await item.destroy();
         res.status(200).json({ message: 'Item deleted' });
     } catch (error) {
-        console.error('❌ Error deleting item:', error);
-        res.status(500).json({ message: 'Error on item deletion' });
+        next(error);
     }
 });
 

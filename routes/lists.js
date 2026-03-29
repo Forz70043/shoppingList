@@ -3,6 +3,8 @@ const RateLimit = require('express-rate-limit');
 const { Item, List } = require('../models');
 const router = express.Router();
 const verifyToken = require('../middleware/auth');
+// eslint-disable-next-line no-unused-vars
+const logger = require('../config/logger');
 
 // Rate limiter: max 100 requests per 15 minutes per IP
 const limiter = RateLimit({
@@ -14,15 +16,14 @@ const limiter = RateLimit({
  * Creation of new list
  * POST /api/lists
  */
-router.post('/', verifyToken, limiter, async (req, res) => {
+router.post('/', verifyToken, limiter, async (req, res, next) => {
     try {
         const { name } = req.body;
         const userId = req.user.id;
         const lista = await List.create({ name, userId });
         res.status(201).json(lista);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error on creation list' });
+        next(error);
     }
 });
 
@@ -30,7 +31,7 @@ router.post('/', verifyToken, limiter, async (req, res) => {
  * Get all lists
  * GET /api/lists
  */
-router.get('/', verifyToken, limiter, async (req, res) => {
+router.get('/', verifyToken, limiter, async (req, res, next) => {
     try {
         if(!req.user || !req.user.id) {
             return res.status(401).json({ message: 'Access denied: no user info' });
@@ -39,8 +40,7 @@ router.get('/', verifyToken, limiter, async (req, res) => {
         const lists = await List.findAll({ where: { userId } });
         res.status(200).json(lists);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error on get lists' });
+        next(error);
     }
 });
 
@@ -48,7 +48,7 @@ router.get('/', verifyToken, limiter, async (req, res) => {
  * Get list by id
  * GET /api/lists/:id
  */
-router.get('/:id', verifyToken, limiter, async (req, res) => {
+router.get('/:id', verifyToken, limiter, async (req, res, next) => {
     try {
         if(!req.user || !req.user.id) {
             return res.status(401).json({ message: 'Access denied: no user info' });
@@ -63,8 +63,7 @@ router.get('/:id', verifyToken, limiter, async (req, res) => {
         }
         res.status(200).json(list);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error on get list' });
+        next(error);
     }
 });
 
@@ -72,7 +71,7 @@ router.get('/:id', verifyToken, limiter, async (req, res) => {
  * Update list
  * PUT /api/lists/:id
  */
-router.put('/:id', verifyToken, limiter, async (req, res) => {
+router.put('/:id', verifyToken, limiter, async (req, res, next) => {
     try {
         const id = req.params.id;
         if (!id) {
@@ -90,8 +89,7 @@ router.put('/:id', verifyToken, limiter, async (req, res) => {
         await list.save();
         res.status(200).json(list);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error on update list' });
+        next(error);
     }
 });
 
@@ -99,7 +97,7 @@ router.put('/:id', verifyToken, limiter, async (req, res) => {
  * Delete list
  * DELETE /api/lists/:id
  */
-router.delete('/:id', verifyToken, limiter, async (req, res) => {
+router.delete('/:id', verifyToken, limiter, async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!req.user || !req.user.id) {
@@ -113,8 +111,7 @@ router.delete('/:id', verifyToken, limiter, async (req, res) => {
         await list.destroy();
         res.status(200).json({ message: 'List deleted' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error on list deletion' });
+        next(error);
     }
 });
 
@@ -122,7 +119,7 @@ router.delete('/:id', verifyToken, limiter, async (req, res) => {
  * Get all items from list
  * POST /api/lists/:listId/items
  */
-router.post('/:listId/items', verifyToken, limiter, async (req, res) => {
+router.post('/:listId/items', verifyToken, limiter, async (req, res, next) => {
     try {
         const listId = req.params.listId;
         if (!req.user || !req.user.id) {
@@ -146,8 +143,7 @@ router.post('/:listId/items', verifyToken, limiter, async (req, res) => {
         res.status(201).json(newItem);
     } 
     catch (error) {
-        console.error("Error adding item:", error);
-        res.status(500).json({ error: 'Error adding item' });
+        next(error);
     }
 });
 
@@ -155,7 +151,7 @@ router.post('/:listId/items', verifyToken, limiter, async (req, res) => {
  * Get all items from list
  * GET /api/lists/:listId/items
  */
-router.get('/:listId/items', verifyToken, limiter, async (req, res) => {
+router.get('/:listId/items', verifyToken, limiter, async (req, res, next) => {
     try {
         const { listId } = req.params;
         if (!req.user || !req.user.id) {
@@ -174,8 +170,7 @@ router.get('/:listId/items', verifyToken, limiter, async (req, res) => {
         res.status(200).json(items);
     } 
     catch (error) {
-        console.error("Error fetching items:", error);
-        res.status(500).json({ error: 'Error fetching items' });
+        next(error);
     }
 });
 

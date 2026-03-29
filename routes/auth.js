@@ -6,6 +6,8 @@ const router = express.Router();
 const passport = require('../config/passport');
 const verifyToken = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
+// eslint-disable-next-line no-unused-vars
+const logger = require('../config/logger');
 
 // Limit requests to `/me` endpoint: max 10 requests per minute
 const meRateLimiter = rateLimit({
@@ -13,6 +15,7 @@ const meRateLimiter = rateLimit({
   max: 10,
   message: "Too many requests to /me, please try again later.",
 });
+
 /**
  * Google authentication
  * GET /api/auth/google
@@ -51,7 +54,7 @@ router.get('/google/callback',
  * User registration
  * POST /api/auth/signup
  */
-router.post('/signup', async (req, res) => {
+router.post('/signup', async (req, res, next) => {
     try {
         const { name, username, email, password, roles } = req.body;
 
@@ -90,8 +93,7 @@ router.post('/signup', async (req, res) => {
 
         res.status(201).json({ message: 'User create successfully', user: newUser, roles: assigned.map(r => r.name) });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error on registration', error });
+        next(error);
     }
 });
 
@@ -99,7 +101,7 @@ router.post('/signup', async (req, res) => {
  * User login
  * POST /api/auth/signin
  */
-router.post('/signin', async (req, res) => {
+router.post('/signin', async (req, res, next) => {
     try {
         const { email, password } = req.body;
     
@@ -137,7 +139,7 @@ router.post('/signin', async (req, res) => {
         res.status(200).json({ user, token });
     } 
     catch (error) {
-        res.status(500).json({ message: 'Error on server', error });
+        next(error);
     }
 });
 
