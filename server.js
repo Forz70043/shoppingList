@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const lusca = require('lusca');
 const sequelize = require('./config/db');
 const logger = require('./config/logger');
+const httpLogger = require('./config/httpLogger');
 const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth');
 const listRoutes = require('./routes/lists');
@@ -21,7 +22,10 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
+
 app.use(express.json());
+// HTTP request logging
+app.use(httpLogger);
 
 // CSRF protection
 app.use(

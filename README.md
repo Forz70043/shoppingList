@@ -1,3 +1,15 @@
+## Authentication Token Handling
+
+On login, the backend sets the JWT token as an httpOnly cookie. The token is never returned in the JSON response.
+The frontend must not store or manage the token manually (no localStorage, no store). All authentication flows (including Google OAuth) use httpOnly cookies for JWT.
+## HTTP Logging
+
+The app uses morgan (integrated with Pino) for HTTP request logging:
+- In development, uses 'dev' format; in production, 'combined' format
+- The /health endpoint is excluded from logs
+- Logs are structured and can be sent to a centralized system in production
+- Sensitive data (passwords, tokens, PII) is never logged
+
 # Grocery List Web App
 
 A web application for managing a grocery list. The app allows users to create, update, and manage their shopping lists. Users can register, log in with email/password or through social authentication (future feature), and access their grocery lists.
