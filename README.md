@@ -94,3 +94,11 @@ Restart the server using
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 Let me know if you need any further adjustments or additions to the README!
+
+### Sequelize CLI configuration
+
+The project uses a config/config.js file (not config.json) for sequelize-cli, which loads all DB parameters from environment variables. This allows you to run migrations and seeders with:
+
+    npx sequelize-cli db:migrate
+
+Make sure your .env file is correctly set up before running migrations.
