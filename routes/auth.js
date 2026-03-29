@@ -6,8 +6,8 @@ const router = express.Router();
 const passport = require('../config/passport');
 const verifyToken = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
-// eslint-disable-next-line no-unused-vars
-const logger = require('../config/logger');
+const validate = require('../middleware/validate');
+const { signupSchema, signinSchema } = require('../validators/schemas');
 
 // Limit requests to `/me` endpoint: max 10 requests per minute
 const meRateLimiter = rateLimit({
@@ -54,13 +54,9 @@ router.get('/google/callback',
  * User registration
  * POST /api/auth/signup
  */
-router.post('/signup', async (req, res, next) => {
+router.post('/signup', validate(signupSchema), async (req, res, next) => {
     try {
         const { name, username, email, password, roles } = req.body;
-
-        if (!name || !username || !email || !password) {
-            return res.status(400).json({ message: 'Mandatory fileds: username, email, password' });
-        }
 
         const isUser = await User.findOne({ where: { email } });
         if (isUser) {
@@ -101,13 +97,9 @@ router.post('/signup', async (req, res, next) => {
  * User login
  * POST /api/auth/signin
  */
-router.post('/signin', async (req, res, next) => {
+router.post('/signin', validate(signinSchema), async (req, res, next) => {
     try {
         const { email, password } = req.body;
-    
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Mandatory fileds: email, password' });
-        }
 
         const user = await User.findOne({ where: { email } });
         if (!user || !user.password) {

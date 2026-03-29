@@ -37,7 +37,41 @@ describe('POST /api/auth/signup', () => {
   it('should reject missing fields', async () => {
     const res = await request(app).post('/api/auth/signup').send({ email: 'a@b.com' });
     expect(res.statusCode).toBe(400);
-    expect(res.body.message).toMatch(/mandatory/i);
+    expect(res.body.message).toBe('Validation error');
+    expect(res.body.errors).toBeDefined();
+  });
+
+  it('should reject invalid email format', async () => {
+    const res = await request(app).post('/api/auth/signup').send({
+      name: 'Bad Email',
+      username: 'bademail',
+      email: 'not-an-email',
+      password: 'Password123!',
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors.some(e => e.field === 'email')).toBe(true);
+  });
+
+  it('should reject weak password', async () => {
+    const res = await request(app).post('/api/auth/signup').send({
+      name: 'Weak',
+      username: 'weakpwd',
+      email: 'weak@example.com',
+      password: 'short',
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors.some(e => e.field === 'password')).toBe(true);
+  });
+
+  it('should reject short username', async () => {
+    const res = await request(app).post('/api/auth/signup').send({
+      name: 'Short',
+      username: 'ab',
+      email: 'short@example.com',
+      password: 'Password123!',
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors.some(e => e.field === 'username')).toBe(true);
   });
 });
 
@@ -75,7 +109,17 @@ describe('POST /api/auth/signin', () => {
   it('should reject missing fields', async () => {
     const res = await request(app).post('/api/auth/signin').send({});
     expect(res.statusCode).toBe(400);
-    expect(res.body.message).toMatch(/mandatory/i);
+    expect(res.body.message).toBe('Validation error');
+    expect(res.body.errors).toBeDefined();
+  });
+
+  it('should reject invalid email format on signin', async () => {
+    const res = await request(app).post('/api/auth/signin').send({
+      email: 'not-valid',
+      password: 'Password123!',
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors.some(e => e.field === 'email')).toBe(true);
   });
 });
 

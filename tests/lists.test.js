@@ -44,6 +44,24 @@ describe('POST /api/lists', () => {
     const res = await request(app).post('/api/lists').send({ name: 'Nope' });
     expect(res.statusCode).toBe(401);
   });
+
+  it('should reject empty list name', async () => {
+    const res = await request(app)
+      .post('/api/lists')
+      .set(authHeader())
+      .send({ name: '' });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Validation error');
+  });
+
+  it('should reject missing list name', async () => {
+    const res = await request(app)
+      .post('/api/lists')
+      .set(authHeader())
+      .send({});
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toBeDefined();
+  });
 });
 
 describe('GET /api/lists', () => {
@@ -127,6 +145,24 @@ describe('POST /api/lists/:listId/items', () => {
       .set(authHeader())
       .send({ name: 'Nope' });
     expect(res.statusCode).toBe(404);
+  });
+
+  it('should reject empty item name', async () => {
+    const res = await request(app)
+      .post(`/api/lists/${listId}/items`)
+      .set(authHeader())
+      .send({ name: '' });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Validation error');
+  });
+
+  it('should reject negative quantity', async () => {
+    const res = await request(app)
+      .post(`/api/lists/${listId}/items`)
+      .set(authHeader())
+      .send({ name: 'Bad', quantity: -1 });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors.some(e => e.field === 'quantity')).toBe(true);
   });
 });
 

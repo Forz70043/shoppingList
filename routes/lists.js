@@ -3,12 +3,14 @@ const { Item, List } = require('../models');
 const router = express.Router();
 const verifyToken = require('../middleware/auth');
 const apiLimiter = require('../middleware/rateLimiter');
+const validate = require('../middleware/validate');
+const { listSchema, itemSchema } = require('../validators/schemas');
 
 /**
  * Creation of new list
  * POST /api/lists
  */
-router.post('/', verifyToken, apiLimiter, async (req, res, next) => {
+router.post('/', verifyToken, apiLimiter, validate(listSchema), async (req, res, next) => {
     try {
         const { name } = req.body;
         const userId = req.user.id;
@@ -57,7 +59,7 @@ router.get('/:id', verifyToken, apiLimiter, async (req, res, next) => {
  * Update list
  * PUT /api/lists/:id
  */
-router.put('/:id', verifyToken, apiLimiter, async (req, res, next) => {
+router.put('/:id', verifyToken, apiLimiter, validate(listSchema), async (req, res, next) => {
     try {
         const id = req.params.id;
         if (!id) {
@@ -99,7 +101,7 @@ router.delete('/:id', verifyToken, apiLimiter, async (req, res, next) => {
  * Get all items from list
  * POST /api/lists/:listId/items
  */
-router.post('/:listId/items', verifyToken, apiLimiter, async (req, res, next) => {
+router.post('/:listId/items', verifyToken, apiLimiter, validate(itemSchema), async (req, res, next) => {
     try {
         const listId = req.params.listId;
         const { name, quantity } = req.body;
