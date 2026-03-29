@@ -2,8 +2,7 @@ name: Keep Alive Service
 
 on:
   schedule:
-    # Every 15 min
-    - cron: '*/15 * * * *'
+    - cron: '*/13 * * * *'
   workflow_dispatch: # manual test/launch
 
 jobs:
