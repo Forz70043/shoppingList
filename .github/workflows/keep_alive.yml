@@ -23,7 +23,7 @@ jobs:
             NAME=$1
             URL=$2
             echo -n "Pinging $NAME... "
-            STATUS=$(curl -Is -o /dev/null -w "%{http_code}" "$URL")
+            STATUS=$(curl --connect-timeout 10 --max-time 30 -Is -o /dev/null -w "%{http_code}" "$URL")
             
             if [ "$STATUS" -eq 200 ] || [ "$STATUS" -eq 301 ] || [ "$STATUS" -eq 302 ]; then
               echo "✅ $NAME is UP (Status: $STATUS)"
