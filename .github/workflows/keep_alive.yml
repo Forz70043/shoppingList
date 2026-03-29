@@ -4,7 +4,7 @@ on:
   schedule:
     # Every 15 min
     - cron: '*/15 * * * *'
-  workflow_dispatch: #manual test/lunch
+  workflow_dispatch: # manual test/launch
 
 jobs:
   ping:
