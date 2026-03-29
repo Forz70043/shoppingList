@@ -128,7 +128,8 @@ router.post('/signin', validate(signinSchema), async (req, res, next) => {
             maxAge: 60 * 60 * 1000, // 1h
         });
         
-        res.status(200).json({ user, token });
+        // Do NOT send token in JSON response for security: only via httpOnly cookie
+        res.status(200).json({ user });
     } 
     catch (error) {
         next(error);

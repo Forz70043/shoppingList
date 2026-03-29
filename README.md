@@ -10,6 +10,24 @@ The app uses morgan (integrated with Pino) for HTTP request logging:
 - Logs are structured and can be sent to a centralized system in production
 - Sensitive data (passwords, tokens, PII) is never logged
 
+## Architecture: Controller & Service Layer
+
+The backend follows a clean separation of concerns:
+- **Controllers** (in /controllers): Only orchestrate HTTP requests and responses, delegating all business logic to services.
+- **Services** (in /services): Contain all business logic and data access for each domain (e.g., listService, itemService).
+- **Models** (in /models): Define Sequelize ORM models.
+
+This structure improves maintainability, testability, and scalability.
+
+### Architecture Diagram (Summary)
+
+- **Route** → calls **Controller**
+- **Controller** → delegates to **Service** (no business logic)
+- **Service** → contains all business logic, interacts with **Model**
+- **Model** → Sequelize ORM, accesses the database
+
+This ensures a clean separation of concerns and maintainable codebase.
+
 # Grocery List Web App
 
 A web application for managing a grocery list. The app allows users to create, update, and manage their shopping lists. Users can register, log in with email/password or through social authentication (future feature), and access their grocery lists.

@@ -1,12 +1,12 @@
-const { List, Item } = require('../models');
 
-// Service layer will be added for business logic if needed
+const listService = require('../services/listService');
+const { Item } = require('../models');
 
 exports.createList = async (req, res, next) => {
   try {
     const { name } = req.body;
     const userId = req.user.id;
-    const list = await List.create({ name, userId });
+    const list = await listService.createList(name, userId);
     res.status(201).json(list);
   } catch (error) {
     next(error);
@@ -16,8 +16,18 @@ exports.createList = async (req, res, next) => {
 exports.getLists = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const lists = await List.findAll({ where: { userId } });
-    res.status(200).json(lists);
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const { count, rows } = await listService.getLists(userId, page, limit);
+    res.status(200).json({
+      data: rows,
+      meta: {
+        total: count,
+        page,
+        limit,
+        totalPages: Math.ceil(count / limit)
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -26,10 +36,8 @@ exports.getLists = async (req, res, next) => {
 exports.getListById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const list = await List.findOne({
-      where: { id, userId: req.user.id },
-      include: [{ model: Item, as: 'items' }],
-    });
+    const userId = req.user.id;
+    const list = await listService.getListById(id, userId);
     if (!list) {
       return res.status(404).json({ message: 'List not found' });
     }
@@ -46,12 +54,11 @@ exports.updateList = async (req, res, next) => {
       return res.status(400).json({ message: 'List ID is required' });
     }
     const { name } = req.body;
-    const list = await List.findOne({ where: { id, userId: req.user.id } });
+    const userId = req.user.id;
+    const list = await listService.updateList(id, userId, name);
     if (!list) {
       return res.status(404).json({ message: 'List not found' });
     }
-    list.name = name;
-    await list.save();
     res.status(200).json(list);
   } catch (error) {
     next(error);
@@ -62,26 +69,27 @@ exports.deleteList = async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
-    const list = await List.findOne({ where: { id, userId } });
-    if (!list) {
+    const deleted = await listService.deleteList(id, userId);
+    if (!deleted) {
       return res.status(404).json({ message: 'List not found' });
     }
-    await list.destroy();
     res.status(200).json({ message: 'List deleted' });
   } catch (error) {
     next(error);
   }
 };
 
+const itemService = require('../services/itemService');
+
 exports.addItemToList = async (req, res, next) => {
   try {
     const listId = req.params.listId;
     const { name, quantity } = req.body;
-    const list = await List.findOne({ where: { id: listId, userId: req.user.id } });
-    if (!list) {
+    const userId = req.user.id;
+    const newItem = await itemService.addItemToList(listId, userId, name, quantity);
+    if (!newItem) {
       return res.status(404).json({ message: 'List not found' });
     }
-    const newItem = await Item.create({ name, quantity, listId });
     res.status(201).json(newItem);
   } catch (error) {
     next(error);
@@ -91,12 +99,23 @@ exports.addItemToList = async (req, res, next) => {
 exports.getItemsFromList = async (req, res, next) => {
   try {
     const { listId } = req.params;
-    const list = await List.findOne({ where: { id: listId, userId: req.user.id } });
-    if (!list) {
+    const userId = req.user.id;
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const result = await itemService.getItemsFromList(listId, userId, page, limit);
+    if (!result) {
       return res.status(404).json({ message: 'List not found' });
     }
-    const items = await Item.findAll({ where: { listId } });
-    res.status(200).json(items);
+    const { count, rows } = result;
+    res.status(200).json({
+      data: rows,
+      meta: {
+        total: count,
+        page,
+        limit,
+        totalPages: Math.ceil(count / limit)
+      }
+    });
   } catch (error) {
     next(error);
   }

@@ -184,6 +184,47 @@ describe('GET /api/lists/:listId/items', () => {
   });
 });
 
+describe('GET /api/lists paginated', () => {
+  it('should return paginated lists with meta', async () => {
+    const res = await request(app)
+      .get('/api/lists?page=1&limit=2')
+      .set(authHeader());
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.meta).toHaveProperty('total');
+    expect(res.body.meta).toHaveProperty('page', 1);
+    expect(res.body.meta).toHaveProperty('limit', 2);
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+});
+
+describe('GET /api/lists/:listId/items paginated', () => {
+  it('should return paginated items with meta', async () => {
+    // Add some items
+    await request(app)
+      .post(`/api/lists/${listId}/items`)
+      .set(authHeader())
+      .send({ name: 'Milk', quantity: 1 });
+    await request(app)
+      .post(`/api/lists/${listId}/items`)
+      .set(authHeader())
+      .send({ name: 'Bread', quantity: 2 });
+    const res = await request(app)
+      .get(`/api/lists/${listId}/items?page=1&limit=1`)
+      .set(authHeader());
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.meta).toHaveProperty('total');
+    expect(res.body.meta).toHaveProperty('page', 1);
+    expect(res.body.meta).toHaveProperty('limit', 1);
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+});
+
 describe('DELETE /api/lists/:id', () => {
   it('should delete a list', async () => {
     // Create a list to delete
