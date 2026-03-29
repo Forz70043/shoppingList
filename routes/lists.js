@@ -14,8 +14,8 @@ router.post('/', verifyToken, apiLimiter, validate(listSchema), async (req, res,
     try {
         const { name } = req.body;
         const userId = req.user.id;
-        const lista = await List.create({ name, userId });
-        res.status(201).json(lista);
+        const list = await List.create({ name, userId });
+        res.status(201).json(list);
     } catch (error) {
         next(error);
     }
