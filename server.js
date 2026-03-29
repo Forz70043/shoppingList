@@ -52,6 +52,17 @@ app.use('/api/auth', authRoutes);
 app.use('/api/lists', listRoutes);
 app.use('/api/items', itemRoutes);
 
+
+// Health check endpoint for monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: Date.now(),
+    database: sequelize?.connectionManager?.pool ? 'connected' : 'unknown'
+  });
+});
+
 app.get('/', (req, res) => {
   res.send('API Grocery List');
 });
