@@ -33,6 +33,7 @@ router.get('/google/callback',
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             maxAge: 60 * 60 * 1000,
+            path: '/',
         });
         res.redirect(process.env.FE_URL);
         //res.json({ token: req.user.token, user: req.user.user });
