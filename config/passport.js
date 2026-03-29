@@ -1,7 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const Role = require('../models/Role');
 
 if (process.env.NODE_ENV !== 'test') {
     passport.use(new GoogleStrategy({
@@ -29,11 +29,15 @@ if (process.env.NODE_ENV !== 'test') {
                         provider: 'google',
                         providerId: profile.id,
                     });
+
+                    // Assign default role
+                    const defaultRole = await Role.findOne({ where: { name: 'user' } });
+                    if (defaultRole) await user.addRole(defaultRole);
                 }
 
-                const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                const userRoles = (await user.getRoles()).map(r => r.name);
 
-                return done(null, { user, token });
+                return done(null, { id: user.id, email: user.email, roles: userRoles });
             } 
             catch (error) {
                 return done(error, false);
