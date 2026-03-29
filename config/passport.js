@@ -21,11 +21,20 @@ if (process.env.NODE_ENV !== 'test') {
                     }
                 } 
                 else {
+                    // Generate unique username from display name
+                    const baseUsername = profile.displayName.replace(/\s+/g, '').toLowerCase();
+                    let username = baseUsername;
+                    let suffix = 1;
+                    while (await User.findOne({ where: { username } })) {
+                        username = `${baseUsername}${suffix}`;
+                        suffix++;
+                    }
+
                     user = await User.create({
                         name: profile.displayName,
-                        username: profile.displayName,
+                        username,
                         email: profile.emails[0].value,
-                        password: '',
+                        password: null,
                         provider: 'google',
                         providerId: profile.id,
                     });
