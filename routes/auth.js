@@ -5,7 +5,14 @@ const bcrypt = require('bcryptjs');
 const router = express.Router();
 const passport = require('../config/passport');
 const verifyToken = require('../middleware/auth');
+const rateLimit = require('express-rate-limit');
 
+// Limit requests to `/me` endpoint: max 10 requests per minute
+const meRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10,
+  message: "Too many requests to /me, please try again later.",
+});
 /**
  * Google authentication
  * GET /api/auth/google
@@ -138,7 +145,7 @@ router.post('/signin', async (req, res) => {
  * Get current user
  * GET /api/auth/me
  */
-router.get("/me", verifyToken, (req, res) => {
+router.get("/me", meRateLimiter, verifyToken, (req, res) => {
     res.json({ id: req.user.id, email: req.user.email, roles: req.user.roles });
 });
 
