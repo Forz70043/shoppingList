@@ -1,22 +1,14 @@
 const express = require('express');
-const RateLimit = require('express-rate-limit');
 const { Item, List } = require('../models');
 const router = express.Router();
 const verifyToken = require('../middleware/auth');
-// eslint-disable-next-line no-unused-vars
-const logger = require('../config/logger');
-
-// Rate limiter: max 100 requests per 15 minutes per IP
-const limiter = RateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-});
+const apiLimiter = require('../middleware/rateLimiter');
 
 /**
  * Creation of new list
  * POST /api/lists
  */
-router.post('/', verifyToken, limiter, async (req, res, next) => {
+router.post('/', verifyToken, apiLimiter, async (req, res, next) => {
     try {
         const { name } = req.body;
         const userId = req.user.id;
@@ -31,11 +23,8 @@ router.post('/', verifyToken, limiter, async (req, res, next) => {
  * Get all lists
  * GET /api/lists
  */
-router.get('/', verifyToken, limiter, async (req, res, next) => {
+router.get('/', verifyToken, apiLimiter, async (req, res, next) => {
     try {
-        if(!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'Access denied: no user info' });
-        }
         const userId = req.user.id;
         const lists = await List.findAll({ where: { userId } });
         res.status(200).json(lists);
@@ -48,11 +37,8 @@ router.get('/', verifyToken, limiter, async (req, res, next) => {
  * Get list by id
  * GET /api/lists/:id
  */
-router.get('/:id', verifyToken, limiter, async (req, res, next) => {
+router.get('/:id', verifyToken, apiLimiter, async (req, res, next) => {
     try {
-        if(!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'Access denied: no user info' });
-        }
         const { id } = req.params;
         const list = await List.findOne({ 
             where: { id, userId: req.user.id },
@@ -71,14 +57,11 @@ router.get('/:id', verifyToken, limiter, async (req, res, next) => {
  * Update list
  * PUT /api/lists/:id
  */
-router.put('/:id', verifyToken, limiter, async (req, res, next) => {
+router.put('/:id', verifyToken, apiLimiter, async (req, res, next) => {
     try {
         const id = req.params.id;
         if (!id) {
             return res.status(400).json({ message: 'List ID is required' });
-        }
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'Access denied: no user info' });
         }
         const { name } = req.body;
         const list = await List.findOne({ where: { id, userId: req.user.id } });
@@ -97,12 +80,9 @@ router.put('/:id', verifyToken, limiter, async (req, res, next) => {
  * Delete list
  * DELETE /api/lists/:id
  */
-router.delete('/:id', verifyToken, limiter, async (req, res, next) => {
+router.delete('/:id', verifyToken, apiLimiter, async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'Access denied: no user info' });
-        }
         const userId = req.user.id;
         const list = await List.findOne({ where: { id, userId } });
         if (!list) {
@@ -119,12 +99,9 @@ router.delete('/:id', verifyToken, limiter, async (req, res, next) => {
  * Get all items from list
  * POST /api/lists/:listId/items
  */
-router.post('/:listId/items', verifyToken, limiter, async (req, res, next) => {
+router.post('/:listId/items', verifyToken, apiLimiter, async (req, res, next) => {
     try {
         const listId = req.params.listId;
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'Access denied: no user info' });
-        }
         const { name, quantity } = req.body;
     
         // Check if list exists
@@ -151,12 +128,9 @@ router.post('/:listId/items', verifyToken, limiter, async (req, res, next) => {
  * Get all items from list
  * GET /api/lists/:listId/items
  */
-router.get('/:listId/items', verifyToken, limiter, async (req, res, next) => {
+router.get('/:listId/items', verifyToken, apiLimiter, async (req, res, next) => {
     try {
         const { listId } = req.params;
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'Access denied: no user info' });
-        }
         // Check if list exists
         const list = await List.findOne({ where: { id: listId, userId: req.user.id } });
         if (!list) {
