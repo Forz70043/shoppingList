@@ -64,6 +64,7 @@ Your application will be running on http://localhost:5000.
 - POST /api/lists: Create a new grocery list (requires JWT).
 - PUT /api/lists/:id: Update an existing grocery list (requires JWT).
 - DELETE /api/lists/:id: Delete a grocery list (requires JWT).
+- GET /health: Health check endpoint for monitoring (returns status, uptime, timestamp, database connection).
 
 ### Future Features
 
@@ -92,4 +93,4 @@ Restart the server using
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-Let me know if you need any further adjustments or additions to the README! 
+Let me know if you need any further adjustments or additions to the README!
