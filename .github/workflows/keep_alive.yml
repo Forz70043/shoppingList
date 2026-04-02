@@ -1,0 +1,38 @@
+name: Keep Alive Service
+
+on:
+  schedule:
+    - cron: '*/13 * * * *'
+  workflow_dispatch: # manual test/launch
+
+jobs:
+  ping:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping my services
+        env:
+          FRONTEND: ${{ secrets.FE_URL }}
+          BACKEND: ${{ secrets.BE_URL }}
+        run: |
+          echo "--- 🚀 Start session Keep Alive: $(date) ---"
+          
+          ping_func() {
+            NAME=$1
+            URL=$2
+            echo -n "Pinging $NAME... "
+            STATUS=$(curl --connect-timeout 20 --max-time 60 -Is -o /dev/null -w "%{http_code}" "$URL")
+            
+            if [ "$STATUS" -eq 200 ] || [ "$STATUS" -eq 301 ] || [ "$STATUS" -eq 302 ]; then
+              echo "✅ $NAME is UP (Status: $STATUS)"
+            else
+              echo "⚠️ $NAME might be DOWN (Status: $STATUS)"
+            fi
+          }
+
+          # Log ping with dummy name
+          ping_func "Front-End" "$FRONTEND"
+          ping_func "Back-End" "$BACKEND"
+          
+          echo "--- ✅ Session complete ---"
