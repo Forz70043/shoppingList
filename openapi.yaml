@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: Grocery List API
+  version: 1.0.0
+  description: API for managing users, lists, and items in a grocery list app
+servers:
+  - url: http://localhost:5001
+paths:
+  /api/auth/signup:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+              required: [name, username, email, password]
+      responses:
+        '201':
+          description: User created
+        '400':
+          description: Validation error
+  /api/auth/signin:
+    post:
+      summary: Login with email and password
+      description: >
+        On successful login, the backend sets the JWT token as an httpOnly cookie. The token is NOT returned in the JSON response.
+        The frontend must not store or manage the token manually (no localStorage, no store).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        '200':
+          description: User object. JWT is set as httpOnly cookie, not returned in the response body.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+  /api/lists:
+    get:
+      summary: Get all lists for the authenticated user
+      description: Supports pagination with `page` and `limit` query parameters. Returns meta info.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number (default 1)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Items per page (default 10)
+      responses:
+        '200':
+          description: Paginated list of lists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/List'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      totalPages:
+                        type: integer
+    post:
+      summary: Create a new list
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required: [name]
+      responses:
+        '201':
+          description: List created
+  /api/lists/{id}:
+    get:
+      summary: Get a list by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List found
+        '404':
+          description: List not found
+    put:
+      summary: Update a list by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required: [name]
+      responses:
+        '200':
+          description: List updated
+        '404':
+          description: List not found
+    delete:
+      summary: Delete a list by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List deleted
+        '404':
+          description: List not found
+  /api/lists/{listId}/items:
+    get:
+      summary: Get all items from a list
+      description: Supports pagination with `page` and `limit` query parameters. Returns meta info.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: listId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number (default 1)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Items per page (default 10)
+      responses:
+        '200':
+          description: Paginated list of items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      totalPages:
+                        type: integer
+      schemas:
+        List:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            userId:
+              type: integer
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        Item:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            listId:
+              type: integer
+            quantity:
+              type: integer
+            purchased:
+              type: boolean
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    post:
+      summary: Add an item to a list
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: listId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                quantity:
+                  type: integer
+              required: [name]
+      responses:
+        '201':
+          description: Item created
+  /api/items/{id}:
+    put:
+      summary: Update an item by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                quantity:
+                  type: integer
+                purchased:
+                  type: boolean
+      responses:
+        '200':
+          description: Item updated
+        '404':
+          description: Item not found
+    delete:
+      summary: Delete an item by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Item deleted
+        '404':
+          description: Item not found
+  /health:
+    get:
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: Health status
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

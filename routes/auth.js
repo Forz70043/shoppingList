@@ -4,6 +4,17 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 const passport = require('../config/passport');
+const verifyToken = require('../middleware/auth');
+const rateLimit = require('express-rate-limit');
+const validate = require('../middleware/validate');
+const { signupSchema, signinSchema } = require('../validators/schemas');
+
+// Limit requests to `/me` endpoint: max 10 requests per minute
+const meRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10,
+  message: "Too many requests to /me, please try again later.",
+});
 
 /**
  * Google authentication
@@ -16,7 +27,10 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
  * GET /api/auth/google/callback
  */
 router.get('/google/callback',
-    passport.authenticate('google', { session: false }),
+    passport.authenticate('google', { 
+        failureRedirect: `${process.env.FE_URL}/login`,
+        session: false 
+    }),
     (req, res) => {
         const token = jwt.sign(
             { id: req.user.id, email: req.user.email, roles: req.user.roles },
@@ -26,9 +40,10 @@ router.get('/google/callback',
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development",
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             maxAge: 60 * 60 * 1000,
+            path: '/',
         });
         res.redirect(process.env.FE_URL);
         //res.json({ token: req.user.token, user: req.user.user });
@@ -39,13 +54,9 @@ router.get('/google/callback',
  * User registration
  * POST /api/auth/signup
  */
-router.post('/signup', async (req, res) => {
+router.post('/signup', validate(signupSchema), async (req, res, next) => {
     try {
         const { name, username, email, password, roles } = req.body;
-
-        if (!name || !username || !email || !password) {
-            return res.status(400).json({ message: 'Mandatory fileds: username, email, password' });
-        }
 
         const isUser = await User.findOne({ where: { email } });
         if (isUser) {
@@ -78,23 +89,17 @@ router.post('/signup', async (req, res) => {
 
         res.status(201).json({ message: 'User create successfully', user: newUser, roles: assigned.map(r => r.name) });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error on registration', error });
+        next(error);
     }
 });
-
 
 /**
  * User login
  * POST /api/auth/signin
  */
-router.post('/signin', async (req, res) => {
+router.post('/signin', validate(signinSchema), async (req, res, next) => {
     try {
         const { email, password } = req.body;
-    
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Mandatory fileds: email, password' });
-        }
 
         const user = await User.findOne({ where: { email } });
         if (!user || !user.password) {
@@ -118,16 +123,38 @@ router.post('/signin', async (req, res) => {
         // Send cookie in secure HTTP-only
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development",
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             maxAge: 60 * 60 * 1000, // 1h
         });
         
-        res.status(200).json({ user, token });
+        // Do NOT send token in JSON response for security: only via httpOnly cookie
+        res.status(200).json({ user });
     } 
     catch (error) {
-        res.status(500).json({ message: 'Error on server', error });
+        next(error);
     }
 });
-  
+
+/**
+ * Get current user
+ * GET /api/auth/me
+ */
+router.get("/me", meRateLimiter, verifyToken, (req, res) => {
+    res.json({ id: req.user.id, email: req.user.email, roles: req.user.roles });
+});
+
+/**
+ * User logout
+ * POST /api/auth/logout
+ */
+router.post("/logout", (req, res) => {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+    res.status(200).json({ message: "Logged out successfully" });
+});
+
 module.exports = router;

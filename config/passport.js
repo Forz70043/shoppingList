@@ -1,7 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const Role = require('../models/Role');
 
 if (process.env.NODE_ENV !== 'test') {
     passport.use(new GoogleStrategy({
@@ -21,19 +21,32 @@ if (process.env.NODE_ENV !== 'test') {
                     }
                 } 
                 else {
+                    // Generate unique username from display name
+                    const baseUsername = profile.displayName.replace(/\s+/g, '').toLowerCase();
+                    let username = baseUsername;
+                    let suffix = 1;
+                    while (await User.findOne({ where: { username } })) {
+                        username = `${baseUsername}${suffix}`;
+                        suffix++;
+                    }
+
                     user = await User.create({
                         name: profile.displayName,
-                        username: profile.displayName,
+                        username,
                         email: profile.emails[0].value,
-                        password: '',
+                        password: null,
                         provider: 'google',
                         providerId: profile.id,
                     });
+
+                    // Assign default role
+                    const defaultRole = await Role.findOne({ where: { name: 'user' } });
+                    if (defaultRole) await user.addRole(defaultRole);
                 }
 
-                const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                const userRoles = (await user.getRoles()).map(r => r.name);
 
-                return done(null, { user, token });
+                return done(null, { id: user.id, email: user.email, roles: userRoles });
             } 
             catch (error) {
                 return done(error, false);
