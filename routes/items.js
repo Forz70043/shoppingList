@@ -1,25 +1,16 @@
 const express = require('express');
-const RateLimit = require('express-rate-limit');
 const { Item, List } = require('../models');
 const router = express.Router();
 const verifyToken = require('../middleware/auth');
-
-// Rate limiter: max 100 requests per 15 minutes per IP
-const limiter = RateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-});
+const apiLimiter = require('../middleware/rateLimiter');
 
 /**
  * Delete item
  * DELETE /api/items/:id
  */
-router.delete('/:id', verifyToken, limiter, async (req, res) => {
+router.delete('/:id', verifyToken, apiLimiter, async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'Access denied: no user info' });
-        }
         const userId = req.user.id;    
         
         const item = await Item.findByPk(id, {
@@ -42,8 +33,7 @@ router.delete('/:id', verifyToken, limiter, async (req, res) => {
         await item.destroy();
         res.status(200).json({ message: 'Item deleted' });
     } catch (error) {
-        console.error('❌ Error deleting item:', error);
-        res.status(500).json({ message: 'Error on item deletion' });
+        next(error);
     }
 });
 
